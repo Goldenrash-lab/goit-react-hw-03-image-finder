@@ -19,14 +19,12 @@ export class App extends Component {
     modal: false,
   };
 
-  getSearch = async query => {
-    this.setState({ loading: true });
-    const { hits } = await getImages(query);
-    this.setState({ images: hits, isSearch: true, page: 1, search: query, loading: false });
+  getSearch = query => {
+    this.setState({ isSearch: true, page: 1, search: query });
   };
 
-  getPage = page => {
-    this.setState({ page: page });
+  getPage = () => {
+    this.setState(prev => ({ page: prev.page + 1 }));
   };
 
   async componentDidUpdate(_, prevState) {
@@ -37,6 +35,17 @@ export class App extends Component {
         images: [...prev.images, ...hits],
         loading: false,
       }));
+    }
+    if (prevState.search < this.state.search) {
+      this.setState({ loading: true });
+      const { hits } = await getImages(this.state.search, this.state.page);
+      this.setState({
+        images: [...hits],
+        loading: false,
+      });
+    }
+    if (!this.state.search) {
+      Notify.warning('Please enter something');
     }
   }
   onWindowCloseModal = e => {
@@ -56,9 +65,9 @@ export class App extends Component {
   };
 
   render() {
-    const { images, isSearch, page, loading, modal, url } = this.state;
+    const { images, isSearch, loading, modal, url } = this.state;
     let loadBtn = false;
-    if (isSearch && images.length >= 12) {
+    if (images && isSearch && images.length >= 12) {
       loadBtn = true;
     }
     return (
@@ -81,7 +90,7 @@ export class App extends Component {
           </ImageGallery>
         )}
         {loading && <Loader></Loader>}
-        {loadBtn && <Button page={page} getPage={this.getPage} />}
+        {loadBtn && <Button getPage={this.getPage} />}
       </AppWrapper>
     );
   }

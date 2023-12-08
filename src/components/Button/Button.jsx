@@ -1,9 +1,9 @@
 import React from 'react';
 import { ButtonStyled } from './Button.styled';
 
-export const Button = ({ page, getPage }) => {
+export const Button = ({ getPage }) => {
   const incrementPage = () => {
-    getPage((page += 1));
+    getPage();
   };
 
   return <ButtonStyled onClick={incrementPage}>Load more</ButtonStyled>;
